@@ -543,19 +543,23 @@ body.nofx #finale .ded .sig,body.nofx #finale .ded .orn{opacity:1;transform:none
         var ps=progOf(d.sec)*d.steps;
         d.cards.forEach(function(card,i){
           var si=+card.dataset.si;
-          var on=P(ps,si-.55,si-.35);
+          /* beat 1: fade in centered + huge · beat 2: hold · beat 3: settle */
+          var on=P(ps,si-.5,si-.34);
           card.style.opacity=on;
-          var u=ease(P(ps,si-.3,si+.45));
-          var rot=getComputedStyle(card).getPropertyValue('--r')||'';
-          card.style.zIndex=u<1?'7':'';
-          if(on>0&&u<1){
+          var useg=P(ps,si+.3,si+.95);
+          var u=ease(useg);                       /* travel */
+          var us=ease(Math.min(1,useg*1.35));     /* shrink a touch faster */
+          card.style.zIndex=useg<1?'7':'';
+          if(on>0&&useg<1){
             card.style.transform='none';
             var c=card.getBoundingClientRect();
             var z=parseFloat((card.closest('.gal')||{}).dataset ? (card.closest('.gal').dataset.z||'1') : '1')||1;
             var dx=(vw/2-(c.left+c.width/2))*(1-u)/z;
             var dy=(vh/2-(c.top+c.height/2))*(1-u)/z;
             var big=Math.max(1.3,Math.min(vw*.86/c.width,vh*.56/c.height));
-            var sc=1+(big-1)*(1-u);
+            var sc=1+(big-1)*(1-us);
+            /* during the hold, breathe very gently so it feels alive */
+            if(useg<=0){var br=1+.012*Math.sin(performance.now()/420);sc*=br;}
             card.style.transform='translate('+dx+'px,'+dy+'px) scale('+sc+')';
           } else {
             card.style.transform='';

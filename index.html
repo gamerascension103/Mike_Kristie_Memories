@@ -143,13 +143,13 @@ body.nofx #introcue{display:none;}
 .card:nth-child(3n){transform:rotate(-1deg);}
 body.nofx .card{opacity:1;}
 @media (max-width:640px){
-  .gal{gap:14px;}
+  .gal{display:grid;grid-template-columns:repeat(2,auto);gap:12px 10px;
+    padding-inline:2px;width:98vw;justify-content:center;align-items:center;justify-items:center;}
+  .card:last-child:nth-child(odd){grid-column:1 / -1;}
   .card{padding:6px 6px 27px;}
   .card .cap{font-size:.95em;bottom:3px;}
-  .card.port img{max-width:38vw;max-height:30vh;}
-  .card.land img{max-width:82vw;max-height:26vh;}
-  #budapest .card.port img{max-height:24vh;}
-  #budapest .card.land img{max-height:20vh;}
+  .card.port img{max-width:38vw;max-height:32vh;}
+  .card.land img{max-width:43vw;max-height:28vh;}
 }
 
 /* passport stamps */
@@ -392,8 +392,9 @@ body.nofx #finale .ded .sig,body.nofx #finale .ded .orn{opacity:1;transform:none
   var pins=[].slice.call(document.querySelectorAll('.pin'));
   function size(){
     if(document.body.classList.contains('nofx'))return;
+    var m=innerWidth<700?.72:1;
     pins.forEach(function(p){
-      p.style.height=(100+(+p.dataset.steps)*(+p.dataset.vhstep))+'vh';
+      p.style.height=(100+(+p.dataset.steps)*(+p.dataset.vhstep)*m)+'vh';
     });
   }
   size();addEventListener('resize',size);
@@ -512,7 +513,9 @@ body.nofx #finale .ded .sig,body.nofx #finale .ded .orn{opacity:1;transform:none
       if(!gal)return;
       gal.style.zoom='1';
       var vh=innerHeight;
-      var reserve=(vh*.05)+head.offsetHeight+(vh*.03)+72; /* stage pad + header + gap + hud room */
+      var reserve=innerWidth<700
+        ? (vh*.035)+head.offsetHeight+(vh*.02)+54
+        : (vh*.05)+head.offsetHeight+(vh*.03)+72;
       var avail=vh-reserve;
       var k=Math.min(1,avail/gal.offsetHeight);
       gal.style.zoom=String(Math.max(.3,k));
@@ -551,7 +554,8 @@ body.nofx #finale .ded .sig,body.nofx #finale .ded .orn{opacity:1;transform:none
             var z=parseFloat((card.closest('.gal')||{}).dataset ? (card.closest('.gal').dataset.z||'1') : '1')||1;
             var dx=(vw/2-(c.left+c.width/2))*(1-u)/z;
             var dy=(vh/2-(c.top+c.height/2))*(1-u)/z;
-            var sc=1+.4*(1-u);
+            var big=Math.max(1.3,Math.min(vw*.86/c.width,vh*.56/c.height));
+            var sc=1+(big-1)*(1-u);
             card.style.transform='translate('+dx+'px,'+dy+'px) scale('+sc+')';
           } else {
             card.style.transform='';
